@@ -34,11 +34,20 @@ export function AICoach() {
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
   }, [messages, isTyping]);
+
 const sendMessage = async (text: string) => {
   if (!text.trim()) return;
 
@@ -161,7 +170,7 @@ const renderMarkdown = (text: string) =>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-4 max-w-4xl w-full mx-auto">
+        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-4 max-w-4xl w-full mx-auto">
           {messages.map(({ id, role, content }) => (
             <div key={id} className={`flex gap-3 ${role === "user" ? "flex-row-reverse" : ""}`}>
               <div
@@ -205,7 +214,6 @@ const renderMarkdown = (text: string) =>
               </div>
             </div>
           )}
-          <div ref={messagesEndRef} />
         </div>
 
         {/* Suggested questions */}
